@@ -9,17 +9,9 @@ from config.env import settings
 from config.db import Base
 import models.tables  # noqa: F401
 
-import os
-from config.env import settings
-
-# For alembic, replace asyncpg with psycopg and fix ssl param
-url = settings.DATABASE_URL
-url = url.replace("postgresql+asyncpg://", "postgresql://")
-url = url.replace("?ssl=true", "?sslmode=require")
-
 
 config = context.config
-config.set_main_option("sqlalchemy.url", settings.url)
+config.set_main_option("sqlalchemy.url", settings.DATABASE_URL)
 
 if config.config_file_name is not None:
     fileConfig(config.config_file_name)
