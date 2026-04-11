@@ -72,6 +72,24 @@ class UserUpdateInput(BaseModel):
         return cleaned
 
 
+class ProfileUpdateInput(BaseModel):
+    first_name: Optional[str] = Field(None, min_length=1)
+    last_name: Optional[str] = Field(None, min_length=1)
+    phone_number: Optional[str] = Field(None, pattern=PHONE_PATTERN)
+    city: Optional[str] = Field(None, min_length=1)
+    age: Optional[int] = Field(None, gt=0)
+
+    @field_validator("first_name", "last_name", "city", mode="before")
+    @classmethod
+    def strip_and_require_value(cls, value):
+        if value is None:
+            return None
+        cleaned = value.strip() if isinstance(value, str) else value
+        if isinstance(cleaned, str) and not cleaned:
+            raise ValueError("must not be empty")
+        return cleaned
+
+
 class UserPublic(BaseModel):
     id: int
     first_name: str

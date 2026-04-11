@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from config.db import get_session
 from middlewares.auth import admin_only, protect
-from models.user import UserUpdateInput
+from models.user import UserUpdateInput, ProfileUpdateInput
 import services.user_service as user_service
 
 router = APIRouter(tags=["Users"])
@@ -20,6 +20,18 @@ async def get_me(
     """GET /me - get current authenticated user profile."""
     user_id = token.get("userId")
     user = await user_service.get_me(user_id, session)
+    return {"data": user}
+
+
+@router.put("/me")
+async def update_me(
+    body: ProfileUpdateInput,
+    token: dict = Depends(protect),
+    session: AsyncSession = Depends(get_session),
+):
+    """PUT /me - update own profile (non-privileged fields only)."""
+    user_id = token.get("userId")
+    user = await user_service.update_user(user_id, body.model_dump(exclude_none=True), session)
     return {"data": user}
 
 

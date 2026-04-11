@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Users/CLICK ONCE/OneDrive/سطح المكតب/Courses/projects/fastapi-blog/frontend/src/pages/dashboard/**)",
+      "Bash(npm run:*)",
+      "Read(//tmp/**)"
+    ]
+  }
+}
