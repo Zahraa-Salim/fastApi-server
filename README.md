@@ -26,8 +26,8 @@ verdant-blog/
 
 | Role   | Email                    | Password      |
 |--------|--------------------------|---------------|
-| Admin  | `saraKhalil@example.com` | `password123` |
-| Client | `a@a.com`                | `password123` |
+| client  | `saraKhalil@example.com` | `password123` |
+| admin | `a@a.com`                | `password123` |
 
 The default super admin account is created automatically on first startup in development:
 

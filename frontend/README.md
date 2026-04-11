@@ -43,8 +43,8 @@ npm run build
 
 After login the server returns a `type` field on the user object:
 
-- `"admin"` → redirected to `/dashboard`
-- `"client"` → redirected to `/client`
+- `"client"` → redirected to `/dashboard`
+- `"admin"` → redirected to `/client`
 
 Admins can create new users with either type from the Users page.
 
