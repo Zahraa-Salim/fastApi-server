@@ -18,10 +18,10 @@ if config.config_file_name is not None:
 
 target_metadata = Base.metadata
 
-
 def _migration_url() -> str:
-    return settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
-
+    url = settings.DATABASE_URL.replace("postgresql+asyncpg://", "postgresql+psycopg://", 1)
+    url = url.replace("?ssl=require", "?sslmode=require")
+    return url
 
 def run_migrations_offline() -> None:
     context.configure(
