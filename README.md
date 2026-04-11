@@ -1,30 +1,61 @@
-# Blog Platform REST API
+# Verdant Blog — Platform
 
-Admin-managed blog REST API built with **FastAPI** + **PostgreSQL** + **Pydantic v2**.
+Full-stack blog platform built with **FastAPI** + **PostgreSQL** + **React + Vite**.
 
-Supports JWT auth, role-based access, full CRUD for authors & posts, soft deletes, filtering, sorting, pagination, search, and optional Cloudinary image uploads.
+The backend is a REST API with JWT auth, role-based access, full CRUD for authors & posts, soft deletes, filtering, sorting, pagination, search, and optional Cloudinary image uploads.
+
+The frontend lives in the `frontend/` folder and includes an admin dashboard and a client-facing posts area.
+
+---
+
+## Project Structure (Top Level)
+
+```
+verdant-blog/
+├── frontend/        # React + Vite + TypeScript client
+├── main.py          # FastAPI app entry point
+├── requirements.txt
+├── .env.example
+├── start.sh
+└── ...
+```
+
+---
+
+## Test Credentials
+
+| Role   | Email                    | Password      |
+|--------|--------------------------|---------------|
+| Admin  | `saraKhalil@example.com` | `password123` |
+| Client | `a@a.com`                | `password123` |
+
+The default super admin account is created automatically on first startup in development:
+
+| Field    | Value                        |
+|----------|------------------------------|
+| Email    | `dev-superadmin@example.com` |
+| Password | `change-me-in-env`           |
+
+Override via `SUPER_ADMIN_EMAIL` and `SUPER_ADMIN_PASSWORD` in your `.env`.
 
 ---
 
 ## Prerequisites
 
-Before running this project, make sure you have:
-
-- **Python 3.10+** installed — [download here](https://www.python.org/downloads/)
-- **PostgreSQL** — either:
-  - Installed locally — [download here](https://www.postgresql.org/download/)
-  - Or a free cloud database — [Neon](https://neon.tech), [Supabase](https://supabase.com), [ElephantSQL](https://www.elephantsql.com)
-- **Git** — [download here](https://git-scm.com/downloads)
+- **Python 3.10+** — [download](https://www.python.org/downloads/)
+- **Node.js 18+** — [download](https://nodejs.org/)
+- **PostgreSQL** — local or cloud ([Neon](https://neon.tech), [Supabase](https://supabase.com))
+- **Git** — [download](https://git-scm.com/downloads)
 
 ---
 
-## Getting Started (Step by Step)
+## Backend Setup
 
 ### 1. Clone the repository
 
 ```bash
 git clone <your-repo-url>
-cd fastapi-blog
+cd verdant-blog
 ```
 
 ### 2. Create a virtual environment
@@ -45,18 +76,7 @@ source venv/bin/activate
 pip install -r requirements.txt
 ```
 
-### 4. Create the database in Neon
-
-Use Neon as the database provider instead of creating PostgreSQL locally.
-
-1. Go to the Neon console.
-2. Create a new project.
-3. Open the project dashboard and copy the connection string.
-4. Replace `postgresql://` with `postgresql+asyncpg://` if needed before putting it in `.env`.
-
-### 5. Create your `.env` file
-
-Copy the example and fill in your values:
+### 4. Create your `.env` file
 
 ```bash
 cp .env.example .env
@@ -74,162 +94,111 @@ AUTO_CREATE_TABLES=true
 APP_BASE_URL=http://localhost:8000
 CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000,http://localhost:5173,http://127.0.0.1:5173
 
-# Optional: super admin credentials (defaults used if not set)
-# SUPER_ADMIN_NAME=Development Super Admin
-# SUPER_ADMIN_EMAIL=dev-superadmin@example.com
-# SUPER_ADMIN_PASSWORD=your_secure_password
 
-# Optional: Cloudinary for image hosting (falls back to local /uploads/ if not set)
-# CLOUDINARY_CLOUD_NAME=your_cloud_name
-# CLOUDINARY_API_KEY=your_api_key
-# CLOUDINARY_API_SECRET=your_api_secret
-# CLOUDINARY_FOLDER=posts
 ```
 
-> **Important:** The `DATABASE_URL` must start with `postgresql+asyncpg://` (not just `postgresql://`).
->
-> **For Neon/cloud:** replace `postgresql://` with `postgresql+asyncpg://` in the connection string they give you.
+> **Important:** `DATABASE_URL` must start with `postgresql+asyncpg://` not `postgresql://`.
+> For Neon: replace `postgresql://` with `postgresql+asyncpg://` and replace `?sslmode=require` with `?ssl=require`.
 
-### 6. Start the server
+### 5. Start the server
 
 ```bash
 uvicorn main:app --reload --port 8000
 ```
 
 You should see:
+
 ```
 PostgreSQL connected — tables created
 INFO:     Uvicorn running on http://127.0.0.1:8000
 ```
 
-Tables are **auto-created** on first startup in development, and seed data runs automatically only in `development`.
+Tables are auto-created on first startup in development, and seed data runs automatically.
 
-### 7. Open the API docs
+### 6. Open the API docs
 
-Go to **http://localhost:8000/docs** in your browser — this is the interactive Swagger UI where you can test every endpoint.
+Go to **http://localhost:8000/docs** — interactive Swagger UI to test every endpoint.
 
 ---
 
-## Default Super Admin Account
-
-On first startup, this account is created automatically:
-
-| Field    | Value                  |
-|----------|------------------------|
-| Email    | dev-superadmin@example.com |
-| Password | change-me-in-env       |
-| Role     | super_admin            |
-
-Override these via `SUPER_ADMIN_EMAIL`, `SUPER_ADMIN_PASSWORD` in your `.env`.
-
-## Production Notes
-
-- Set `APP_ENV=production` in production deployments.
-- Set `AUTO_CREATE_TABLES=false` in production and run Alembic migrations during deploy.
-- Set `APP_BASE_URL` to your real backend URL in production.
-- Set `CORS_ORIGINS` to your real frontend domains, comma-separated.
-- Seed data does not run automatically outside `development`.
-- Do not deploy with default super admin credentials or placeholder secrets.
-- If you do not configure Cloudinary, uploaded files are only suitable for local development.
-
-## Database Migrations
-
-This project now includes Alembic for production-safe schema changes.
-
-Create or apply migrations with:
+## Frontend Setup
 
 ```bash
-alembic upgrade head
+cd frontend
+cp .env.example .env   # or create .env manually
+npm install
+npm run dev
 ```
 
-Alembic uses a synchronous PostgreSQL driver internally, while the app still uses `asyncpg` at runtime.
-
-For local development, the app still auto-creates tables when `APP_ENV=development` or `AUTO_CREATE_TABLES=true`, so a fresh clone can run immediately without manual migration steps.
-
-## Deployment
-
-### Production environment values
-
-Use values like these in production:
+The frontend `.env`:
 
 ```env
-APP_ENV=production
-AUTO_CREATE_TABLES=false
-APP_BASE_URL=https://api.your-backend.com
-DATABASE_URL=postgresql+asyncpg://...
-JWT_SECRET=your_real_secret
-CORS_ORIGINS=https://your-frontend.com,https://www.your-frontend.com
+VITE_API_URL=http://localhost:8000
 ```
 
-### Production startup
+Open **http://localhost:5173** in your browser.
 
-For production, this repo includes [start.sh](/c:/Users/CLICK%20ONCE/OneDrive/%D8%B3%D8%B7%D8%AD%20%D8%A7%D9%84%D9%85%D9%83%D8%AA%D8%A8/Courses/projects/fastapi-blog/start.sh), which:
+### Frontend Routes
 
-1. Runs `alembic upgrade head`
-2. Starts `uvicorn`
-
-### Render / Railway
-
-- [Procfile](/c:/Users/CLICK%20ONCE/OneDrive/%D8%B3%D8%B7%D8%AD%20%D8%A7%D9%84%D9%85%D9%83%D8%AA%D8%A8/Courses/projects/fastapi-blog/Procfile) is included for simple platform startup.
-- [render.yaml](/c:/Users/CLICK%20ONCE/OneDrive/%D8%B3%D8%B7%D8%AD%20%D8%A7%D9%84%D9%85%D9%83%D8%AA%D8%A8/Courses/projects/fastapi-blog/render.yaml) provides a basic Render service definition.
-- On Railway or similar platforms, the start command can be:
-
-```bash
-sh start.sh
-```
-
-### Docker
-
-Build and run:
-
-```bash
-docker build -t fastapi-blog .
-docker run --env-file .env -p 8000:8000 fastapi-blog
-```
+| Route | Access | Description |
+|-------|--------|-------------|
+| `/login` | Public | Login for admin and client |
+| `/register` | Public | Register a new account |
+| `/dashboard/users` | Admin only | Manage users (list, create, delete) |
+| `/dashboard/authors` | Admin only | Manage authors (CRUD) |
+| `/dashboard/posts` | Admin only | Manage posts (CRUD + filters) |
+| `/client/posts` | Client only | Browse published posts |
+| `/client/profile` | Client only | View personal profile |
 
 ---
 
 ## API Endpoints
 
 ### Server Info & Health
+
 | Method | URL       | Description                    | Auth |
 |--------|-----------|--------------------------------|------|
 | GET    | `/`       | Server info & available routes | No   |
 | GET    | `/health` | Health check + DB status       | No   |
-| GET    | `/docs`   | Swagger UI (interactive docs)  | No   |
+| GET    | `/docs`   | Swagger UI                     | No   |
 
 ### Auth
-| Method | URL                   | Description       | Auth |
-|--------|-----------------------|-------------------|------|
-| POST   | `/api/auth/register`  | Create new admin  | No   |
-| POST   | `/api/auth/login`     | Login, get JWT    | No   |
+
+| Method | URL                  | Description    | Auth |
+|--------|----------------------|----------------|------|
+| POST   | `/api/auth/register` | Register user  | No   |
+| POST   | `/api/auth/login`    | Login, get JWT | No   |
+
+### Users (requires JWT)
+
+| Method | URL          | Description      | Role  |
+|--------|--------------|------------------|-------|
+| GET    | `/me`        | Get current user | any   |
+| GET    | `/users`     | List all users   | admin |
+| PUT    | `/users/:id` | Update user      | admin |
+| DELETE | `/users/:id` | Delete user      | admin |
 
 ### Authors (requires JWT)
-| Method | URL                  | Description          | Role  |
-|--------|----------------------|----------------------|-------|
-| POST   | `/api/authors`       | Create author        | admin |
-| GET    | `/api/authors`       | List authors         | any   |
-| GET    | `/api/authors/:id`   | Get author by ID     | any   |
-| PATCH  | `/api/authors/:id`   | Update author        | admin |
-| DELETE | `/api/authors/:id`   | Soft delete author   | admin |
+
+| Method | URL                | Description        | Role  |
+|--------|--------------------|--------------------|-------|
+| POST   | `/api/authors`     | Create author      | admin |
+| GET    | `/api/authors`     | List authors       | any   |
+| GET    | `/api/authors/:id` | Get author by ID   | any   |
+| PATCH  | `/api/authors/:id` | Update author      | admin |
+| DELETE | `/api/authors/:id` | Soft delete author | admin |
 
 ### Posts (requires JWT)
-| Method | URL                            | Description              | Role  |
-|--------|--------------------------------|--------------------------|-------|
-| POST   | `/api/posts`                   | Create post (multipart)  | admin |
-| POST   | `/api/posts/json`              | Create post (JSON body)  | admin |
-| GET    | `/api/posts`                   | List posts               | any   |
-| GET    | `/api/posts/:id`               | Get post by ID           | any   |
-| PATCH  | `/api/posts/:id`               | Update post              | admin |
-| DELETE | `/api/posts/:id`               | Soft delete post         | admin |
-| GET    | `/api/posts/author/:authorId`  | Posts by author          | any   |
 
-### Users (requires super_admin)
-| Method | URL                     | Description        | Role        |
-|--------|-------------------------|--------------------|-------------|
-| GET    | `/api/users`            | List admin users   | super_admin |
-| PATCH  | `/api/users/:id`        | Deactivate user    | super_admin |
-| PATCH  | `/api/users/:id/role`   | Update user role   | super_admin |
+| Method | URL                           | Description             | Role  |
+|--------|-------------------------------|-------------------------|-------|
+| POST   | `/api/posts`                  | Create post (multipart) | admin |
+| POST   | `/api/posts/json`             | Create post (JSON)      | admin |
+| GET    | `/api/posts`                  | List posts              | any   |
+| GET    | `/api/posts/:id`              | Get post by ID          | any   |
+| PATCH  | `/api/posts/:id`              | Update post             | admin |
+| DELETE | `/api/posts/:id`              | Soft delete post        | admin |
+| GET    | `/api/posts/author/:authorId` | Posts by author         | any   |
 
 ---
 
@@ -238,74 +207,128 @@ docker run --env-file .env -p 8000:8000 fastapi-blog
 All list endpoints support:
 
 ```
-?page=1&limit=10          # Pagination
-?sort=createdAt&order=desc # Sorting (asc or desc)
-?q=search_term             # Search across text fields
+?page=1&limit=10             # Pagination
+?sort=created_at&order=desc  # Sorting (asc or desc)
+?q=search_term               # Search across text fields
 ```
 
 Posts also support:
+
 ```
-?status=published          # Filter by status
-?tag=javascript            # Filter by tag
-?author=1                  # Filter by author ID
+?status=published   # Filter by status
+?tag=javascript     # Filter by tag
+?author=1           # Filter by author ID
 ```
 
 ---
 
-## Project Structure
+## Database Migrations
+
+```bash
+alembic upgrade head
+```
+
+For local development, tables are auto-created when `APP_ENV=development` or `AUTO_CREATE_TABLES=true`.
+
+---
+
+## Production Notes
+
+- Set `APP_ENV=production`
+- Set `AUTO_CREATE_TABLES=false` and run Alembic migrations during deploy
+- Set `APP_BASE_URL` to your real backend URL
+- Set `CORS_ORIGINS` to your real frontend domain(s)
+- Configure Cloudinary for image uploads (local uploads are disabled in production)
+- Do not use default credentials or placeholder secrets
+
+### Production `.env`
+
+```env
+APP_ENV=production
+AUTO_CREATE_TABLES=false
+APP_BASE_URL=https://api.your-backend.com
+DATABASE_URL=postgresql+asyncpg://...?ssl=require
+JWT_SECRET=your_real_secret
+CORS_ORIGINS=https://your-frontend.com
+```
+
+### Render / Railway
+
+Start command:
+
+```bash
+sh start.sh
+```
+
+`start.sh` runs `alembic upgrade head` then starts `uvicorn`.
+
+### Docker
+
+```bash
+docker build -t verdant-blog .
+docker run --env-file .env -p 8000:8000 verdant-blog
+```
+
+---
+
+## Backend Source Structure
 
 ```
-fastapi-blog/
-├── main.py                    # App entry point: startup, middleware, routers, error handlers
-├── requirements.txt           # Python dependencies
-├── .env.example               # Environment variable template
-├── .gitignore                 # Git ignore rules
+verdant-blog/
+├── main.py                 # App entry point
+├── requirements.txt
+├── .env.example
+├── start.sh
+├── frontend/               # React + Vite frontend
 │
 ├── config/
-│   ├── env.py                 # Loads environment variables into a Settings class
-│   └── db.py                  # SQLAlchemy async engine, session factory, table creation
+│   ├── env.py              # Environment variables → Settings class
+│   └── db.py               # SQLAlchemy async engine & session
 │
 ├── models/
-│   ├── tables.py              # SQLAlchemy ORM models (UserTable, AuthorTable, PostTable)
-│   ├── user.py                # Pydantic schemas for user requests & responses
-│   ├── author.py              # Pydantic schemas for author requests & responses
-│   └── post.py                # Pydantic schemas for post requests & responses
+│   ├── tables.py           # ORM models (UserTable, AuthorTable, PostTable)
+│   ├── user.py             # Pydantic schemas for users
+│   ├── author.py           # Pydantic schemas for authors
+│   └── post.py             # Pydantic schemas for posts
 │
 ├── services/
-│   ├── auth_service.py        # Register, login, password hashing, JWT token creation
-│   ├── author_service.py      # Author CRUD, soft delete, duplicate email check
-│   ├── post_service.py        # Post CRUD, slug validation, author join, soft delete
-│   └── user_service.py        # List users, deactivate, update role (admin dashboard)
+│   ├── auth_service.py     # Register, login, JWT
+│   ├── author_service.py   # Author CRUD
+│   ├── post_service.py     # Post CRUD + image
+│   └── user_service.py     # User management
 │
 ├── routers/
-│   ├── auth.py                # POST /api/auth/register, /api/auth/login
-│   ├── authors.py             # CRUD endpoints for /api/authors
-│   ├── posts.py               # CRUD endpoints for /api/posts + image upload
-│   └── users.py               # Admin endpoints for /api/users (super_admin only)
+│   ├── auth.py             # /api/auth/*
+│   ├── authors.py          # /api/authors/*
+│   ├── posts.py            # /api/posts/*
+│   └── users.py            # /me, /users/*
 │
 ├── middlewares/
-│   └── auth.py                # JWT verification, role guards (protect, admin_only, super_admin_only)
+│   └── auth.py             # JWT verification, role guards
 │
 ├── utils/
-│   └── api_features.py        # Reusable query builder: filter, search, sort, paginate
+│   └── api_features.py     # Filter, search, sort, paginate
 │
 ├── seed/
-│   └── seed.py                # Seeds sample data in development (idempotent)
+│   └── seed.py             # Dev seed data (idempotent)
 │
-└── uploads/                   # Local image storage (when Cloudinary is not configured)
+└── uploads/                # Local image storage (dev only)
 ```
 
 ---
 
 ## Tech Stack
 
-| Technology     | Purpose                      |
-|---------------|------------------------------|
-| FastAPI        | Web framework                |
-| SQLAlchemy 2.0 | Async ORM for PostgreSQL     |
-| asyncpg        | PostgreSQL async driver      |
-| Pydantic v2    | Request/response validation  |
-| python-jose    | JWT token creation & verify  |
-| bcrypt         | Password hashing             |
-| Cloudinary     | Optional image hosting       |
-| Uvicorn        | ASGI server                  |
+| Technology     | Purpose                     |
+|----------------|-----------------------------|
+| FastAPI        | Web framework               |
+| SQLAlchemy 2.0 | Async ORM for PostgreSQL    |
+| asyncpg        | PostgreSQL async driver     |
+| Pydantic v2    | Request/response validation |
+| python-jose    | JWT token creation & verify |
+| bcrypt         | Password hashing            |
+| Alembic        | Database migrations         |
+| Cloudinary     | Optional image hosting      |
+| Uvicorn        | ASGI server                 |
+| React + Vite   | Frontend framework          |
+| TypeScript     | Frontend type safety        |

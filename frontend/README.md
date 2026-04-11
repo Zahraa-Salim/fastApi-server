@@ -1,6 +1,7 @@
-# Admin Dashboard Client 
+# Verdant Blog — Frontend
 
-React + Vite + TypeScript admin dashboard for the blog platform API.
+React + Vite + TypeScript frontend for the Verdant Blog platform.
+Includes an admin dashboard and a client-facing posts area.
 
 ## Environment
 
@@ -13,7 +14,7 @@ cp .env.example .env
 Default API URL:
 
 ```env
-VITE_API_URL=http://localhost:5000
+VITE_API_URL=http://localhost:8000
 ```
 
 ## Install and Run
@@ -31,28 +32,48 @@ Open the Vite URL shown in terminal (usually `http://localhost:5173`).
 npm run build
 ```
 
+## Test Credentials
+
+| Role | Email | Password |
+|------|-------|----------|
+| Admin | `saraKhalil@example.com` | `password123` |
+| Client | `a@a.com` | `password123` |
+
+## Auth & Roles
+
+After login the server returns a `type` field on the user object:
+
+- `"admin"` → redirected to `/dashboard`
+- `"client"` → redirected to `/client`
+
+Admins can create new users with either type from the Users page.
+
 ## Routes
 
-- `/register`
-- `/login`
-- `/dashboard/users`
-- `/dashboard/authors`
-- `/dashboard/posts`
-
-All `/dashboard/*` routes are protected and require JWT from login.
+| Route | Access | Description |
+|-------|--------|-------------|
+| `/login` | Public | Login for both admin and client |
+| `/register` | Public | Register a new account |
+| `/dashboard/users` | Admin only | Manage users (list, create, delete) |
+| `/dashboard/authors` | Admin only | Manage authors (CRUD) |
+| `/dashboard/posts` | Admin only | Manage posts (CRUD + filters) |
+| `/client/posts` | Client only | Browse published posts |
+| `/client/profile` | Client only | View personal profile |
 
 ## Features
 
-- JWT auth with localStorage token
-- Protected routing
-- Users management (list + deactivate)
-- Authors CRUD with modal forms
-- Posts CRUD with modal forms + filters (`status`, `tag`, `authorId`)
-- Pagination, sorting, and debounced search (`q`)
-- Custom responsive CSS layout with mobile sidebar drawer toggle
-- Framer Motion transitions for routes/modals
-- Form validation using `react-hook-form` + `zod`
-- Toast notifications using `react-hot-toast`
+- JWT auth stored in localStorage
+- Role-based routing: admin → `/dashboard`, client → `/client`
+- Protected routes with automatic redirect based on user type
+- **Admin:** Users management (list, create, delete), Authors CRUD, Posts CRUD
+- **Client:** Read-only published posts feed with search and pagination
+- Client profile page showing account details
+- Pagination, sorting, and debounced search
+- Responsive layout — mobile sidebar drawer for admin, clean navbar for client
+- Framer Motion page transitions
+- Form validation with `react-hook-form` + `zod`
+- Toast notifications with `react-hot-toast`
+- Dark mode support
 
 ## Source Structure
 
@@ -82,6 +103,9 @@ src/
       UsersPage.tsx
       AuthorsPage.tsx
       PostsPage.tsx
+    client/
+      ClientPostsPage.tsx
+      ClientProfilePage.tsx
   lib/
     api.ts
     auth.ts
