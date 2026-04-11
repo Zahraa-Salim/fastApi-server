@@ -26,12 +26,9 @@ const postSchema = z.object({
   slug: z.string().min(3, "Slug must be at least 3 characters"),
   content: z.string().min(10, "Content must be at least 10 characters"),
   status: z.enum(["draft", "published"]),
-  author: z.string().min(1, "Author is required"),
+  author: z.number().min(1, "Author is required"),
   tagsInput: z.string().optional(),
-}).transform((data) => ({
-  ...data,
-  author: Number(data.author),
-}));
+});
 
 type PostFormValues = z.infer<typeof postSchema>;
 type ModalMode = "create" | "edit";
@@ -127,7 +124,7 @@ export function PostsPage() {
       slug: "",
       content: "",
       status: "draft",
-      author: "",
+      author: 0,
       tagsInput: "",
     },
   });
@@ -199,7 +196,7 @@ export function PostsPage() {
       slug: "",
       content: "",
       status: "draft",
-      author: String(authors[0]?.id || ""),
+      author: authors[0]?.id || 0,
       tagsInput: "",
     });
     setFormOpen(true);
@@ -214,7 +211,7 @@ export function PostsPage() {
       slug: post.slug,
       content: post.content,
       status: post.status === "published" ? "published" : "draft",
-      author: String(post.author_id || ""),
+      author: post.author_id || 0,
       tagsInput: post.tags.join(", "),
     });
     setFormOpen(true);
@@ -259,7 +256,7 @@ export function PostsPage() {
         formData.append("slug", payload.slug);
         formData.append("content", payload.content);
         formData.append("status", payload.status);
-        formData.append("author", payload.author);
+        formData.append("author", String(payload.author));
         if (payload.tags.length) {
           formData.append("tags", JSON.stringify(payload.tags));
         }

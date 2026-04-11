@@ -8,7 +8,7 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "react-hot-toast";
 import { api } from "../../lib/api";
-import { isAdmin, isAuthenticated, setAuthUser, setToken } from "../../lib/auth";
+import { isAuthenticated, setAuthUser, setToken } from "../../lib/auth";
 import { Input } from "../../components/ui/Input";
 import { Button } from "../../components/ui/Button";
 
